@@ -20,6 +20,10 @@
         <input type="checkbox" id="createAnotherOnSubmit"><label for="createAnotherOnSubmit">Create another</label>
         <button>Submit question</button>
     </p>
+
+    <p>
+      <button id='questionDelete' type='button'>Delete question</button>
+    </p>
 </form>
 
 <script id="questionAnswerTemplate" type="text/x-handlebar-template">
@@ -47,7 +51,8 @@ $(function() {
 
     $("#questionForm").submit(function(e) {
         e.preventDefault();
-        questions.save({}).then(function() {
+        questions.save({ title: $("#questionTitle").val() }).then(function() {
+            console.log('saved');
             if ($("#createAnotherOnSubmit").prop('checked')) {
                 window.location.hash = "edit/new";
                 $("#questionTitle").val("").focus();
@@ -58,7 +63,15 @@ $(function() {
     });
 
     var questionId = parseInt(window.location.hash.replace(/^.*\//, ""));
+
     if (questionId) {
+        $('#questionDelete').click(function(e) {
+            e.preventDefault();
+            questions.destroy(questionId).then(function() {
+                console.log('destroyed');
+                selectPartial("list");
+            });
+        });
         $("#formTitle").text("Update question");
         questions.get(questionId).then(function(question) {
             var indices = {};

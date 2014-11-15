@@ -1,3 +1,5 @@
+var expect = require('chai').expect;
+
 var webtests = require('./webtests');
 var testServer = require('./testserver');
 
@@ -10,31 +12,114 @@ describe('question web pages', function() {
   before(webtests.startSeleniumServer);
 
   before(function(done) {
-    this.timeout(15000);
-    client = webtests.startWebDriver(done);
-  });
-
-  before(function(done) {
     testServer.startServer(function(_url) {
       url = _url; done();
     });
   });
 
-  after(function(done) {
+  beforeEach(function(done) {
+    this.timeout(15000);
+    client = webtests.startWebDriver(done);
+    client.waitAndClick = function(selector) {
+      return client.waitFor(selector).click(selector);
+    };
+    client.waitAndGetText = function(selector, callback) {
+      return client.waitFor(selector).getText(selector, callback);
+    }
+  });
+
+  afterEach(function() {
+    client.saveScreenshot("TEST-" + this.currentTest.state + "-" + this.currentTest.title + ".png");
+  });
+
+  afterEach(function(done) {
     client.end(done);
   });
 
-  it('shows title in detail screen');
+  it('shows title in detail screen', function(done) {
+    client
+      .url(url + "questions")
+      .waitAndGetText('#questionList a', function(err, summaryText) {
+        client
+          .click('#questionList a')
+          .waitAndGetText('#questionTitle', function(err, editText) {
+            expect(editText).to.eql(summaryText[0]);
+            done();
+          })
+      });
 
-  it('shows title in edit screen');
+  });
 
-  it('updates title after edit');
+  it('shows title in edit screen', function(done) {
+    client
+      .url(url + "questions")
+      .waitAndClick('#questionList a')
+      .waitAndGetText('#questionTitle', function(err, editTitle) {
+        client
+          .click('#questionEdit')
+          .waitFor('#questionForm')
+          .getAttribute('#questionTitle', 'value', function(err, value) {
+            expect(editTitle).to.eql(value);
+            done();
+          });
+      })
+  });
 
-  it('removes deleted questions');
+  it('updates title after edit', function(done) {
+    client
+      .url(url + 'questions')
+      .waitAndClick('#questionList a')
+      .waitAndClick('#questionEdit')
+      .waitFor('#questionForm')
+      .setValue('#questionTitle', 'new title')
+      .submitForm('#questionTitle')
+      .waitAndGetText('#questionList a', function(err, texts) {
+        expect(texts).to.contain('new title');
+        done();
+      });
+  });
 
-  it('shows save screen');
+  it('removes deleted questions', function(done) {
+    client
+      .url(url + 'questions')
+      .waitAndClick('#questionList a')
+      .waitAndGetText('#questionTitle', function(err, editTitle) {
+        client
+          .waitAndClick('#questionEdit')
+          .waitAndClick('#questionDelete')
+          .waitAndGetText('#questionList a', function(err, texts) {
+            expect(texts).to.not.contain(editTitle);
+            done();
+          });
+      })
+  });
 
-  it('removes title but keeps screen on create new during save');
+  it('shows save screen', function(done) {
+    client
+      .url(url + 'questions')
+      .waitAndClick('#addQuestion')
+      .waitFor('#questionForm')
+      .getAttribute('#questionTitle', 'value', function(err, value) {
+        expect(value).to.eql('');
+        done();
+      });
+  });
+
+  it('removes title but keeps screen on create new during save', function(done) {
+    client
+      .url(url + 'questions')
+      .waitAndClick('#addQuestion')
+      .waitFor('#questionForm')
+      .setValue('#questionTitle', 'new  question')
+      .click('#createAnotherOnSubmit')
+      .submitForm('#questionForm')
+      .getAttribute('#questionTitle', 'value', function(err, value) {
+        expect(value).to.eql('');
+        done();
+      });
+  });
+
+
 
 
 

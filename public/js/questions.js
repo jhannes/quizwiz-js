@@ -1,45 +1,47 @@
 var questions = (function() {
-  var data = [
-    {
+  var data = {
+    1: {
       id:1, title: "one", text: "What do you think about one?",
       answers: [ {'text': 'a', 'correct': true}, {'text': 'b', 'correct': false}]
     }, 
-    {
+    2: {
       id:2, title: "two", text: "What do you think about two?",
       answers: [ {'text': 'a', 'correct': true}, {'text': 'b', 'correct': false}]
     }
-  ];
+  };
 
 
   return {
     save: function(question) {
       return new Promise(function(resolve, reject) {
-        if (question.id) {
-          for (var i = 0; i < data.length; i++) {
-            if (data[i].id == question.id) data[i] = question;
-          };
-        } else {
-          console.log('creating new');
+        if (!question.id) {
           question.id = data.length+1;
-          data.push(question);
         }
-
+        data[question.id] = question;
         resolve();
       });
     },
 
     list: function() {
       return new Promise(function(resolve, reject) {
-        resolve(data);
+        var result = [];
+        for (var id in data) {
+          result.push(data[id]);
+        }
+        resolve(result);
       });
     },
 
     get: function(questionId) {
       return new Promise(function(resolve, reject) {
-        for (var i = 0; i < data.length; i++) {
-          if (data[i].id == questionId) resolve(data[i]);
-        };
-        resolve(null);
+        resolve(data[questionId]);
+      });
+    },
+
+    destroy: function(questionId) {
+      return new Promise(function(resolve, reject) {
+        delete data[questionId];
+        resolve();
       });
     }
   };
