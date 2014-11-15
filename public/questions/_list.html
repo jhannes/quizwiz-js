@@ -1,0 +1,33 @@
+<h3>Available questions</h3>
+
+<div id="questionList">
+Loading questions...
+<script type="text/x-handlebars-template" id="questionTemplate">
+<ul>
+  {{#each .}}
+    <li>Question: <a href="#" data-question="{{ id }}">{{ title }}</a></li>
+  {{/each}}
+</ul>
+</script>
+</div>
+
+<button id="addQuestion">Add new question</button>
+
+
+<script type="text/javascript">
+var questionTemplate = Handlebars.compile($("#questionTemplate").html());
+
+$(function() {
+    $("#questionList").on("click", "a", function(e) {
+        e.preventDefault();
+        selectPartial('show', $(e.target).data("question"));
+    });
+    questions.list().then(function(data) {
+        $("#questionList").html(questionTemplate(data));
+    })
+
+    $("#addQuestion").click(function() {
+        selectPartial('edit', 'new');
+    });
+});
+</script>

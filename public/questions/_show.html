@@ -1,0 +1,20 @@
+<h3>Question: <span id="questionTitle"></span></h3>
+
+<div id="questionText"></div>
+
+<button id="questionEdit">Edit question</button>
+
+<script type="text/javascript">
+
+$(function() {
+    var questionId = parseInt(window.location.hash.replace(/^.*\//, ""));
+    questions.get(questionId).then(function(question) {
+        $("#questionTitle").text(question.title);
+        $("#questionText").text(question.text);
+
+        $("#questionEdit").click(function() { 
+            selectPartial('edit', question.id);
+        });
+    });
+});
+</script>

@@ -1,0 +1,80 @@
+<h3 id="formTitle">Create new question</h3>
+
+<form id="questionForm">
+    <div>
+    <input type="text" name="question[title]" id="questionTitle" placeholder="Title" size="80" />
+    </div>
+    <div>
+    <textarea name="question[text]" rows="10" cols="80"
+    placeholder="Question text (markdown accepted)"></textarea>
+    </div>
+
+    <h3>Answers</h3>
+    <div id="questionAnswerOptions"></div>
+    <p>
+        <button id="questionAddAnswerOption" type="button">Add answer</button>
+    </p>
+
+    <h3>Submit</h3>
+    <div>
+        <input type="checkbox" id="createAnotherOnSubmit"><label for="createAnotherOnSubmit">Create another</label>
+        <button>Submit question</button>
+    </div>
+</form>
+
+<script id="questionAnswerTemplate" type="text/x-handlebar-template">
+    <div class="questionOption">
+        <input type="radio" name="question[answers][][correct]" />
+        <input type="text" name="question[answers][][text]" placeholder="Answer option" size="80" />
+        <button class="questionOptionDelete" type="button">Delete</button>
+    </div>
+</script>
+
+
+<script type="text/javascript">
+$(function() {
+    var answerTemplate = Handlebars.compile($("#questionAnswerTemplate").html());
+    var answerOptions = $("#questionAnswerOptions");
+
+    answerOptions.append(answerTemplate());
+    answerOptions.append(answerTemplate());
+
+    $("#questionTitle").focus();
+    $("#questionAddAnswerOption").click(function() {
+        answerOptions.append(answerTemplate);
+        $(".questionOption:last input:last").focus();
+    });
+
+    $("#questionForm").submit(function(e) {
+        e.preventDefault();
+        questions.save({}).then(function() {
+            if ($("#createAnotherOnSubmit").prop('checked')) {
+                window.location.hash = "edit/new";
+                $("#questionTitle").val("").focus();
+            } else {
+                selectPartial("list");
+            }
+        });
+    });
+
+    var questionId = parseInt(window.location.hash.replace(/^.*\//, ""));
+    if (questionId) {
+        $("#formTitle").text("Update question");
+        questions.get(questionId).then(function(question) {
+            var indices = {};
+            $("input,textarea").each(function(i, e) {
+                var match = e.name.match(/question\[([^\]]*)\](.*)$/);
+                if (!match) return;
+                var value = question[match[1]];
+                if (!value) return;
+                if (!match[2]) {
+                    $(e).val(value);
+                } else {
+                    console.log(match[2]);
+                }
+            });
+        });
+    }
+
+});
+</script>

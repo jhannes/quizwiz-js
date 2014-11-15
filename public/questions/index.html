@@ -12,6 +12,39 @@
     Loading content...
 </section>
 
-</body>
 
+<script type="text/x-handlebars-template" id="loading-template">
+<div>Loading...</div>
+</script>
+
+</body>
+<script src="/vendor/jquery/dist/jquery.js"></script>
+<script src="/js/questions.js"></script>
+<script src="/vendor/handlebars/handlebars.min.js"></script>
+<script type="text/javascript">
+var loadingTemplate = Handlebars.compile($("#loading-template").html());
+
+var displayCurrentLocation = function() {
+    var partial = "./_" + window.location.hash.replace(/^#/, "").replace(/\/.*$/, "") + ".html";
+    $("#content").html(loadingTemplate());
+    $.get(partial).then(function(html) {
+        $("#content").html(html);
+    });
+}
+
+var selectPartial = function(partial, id) {
+    window.location.hash = partial;
+    if (id) window.location.hash += ("/" + id);
+    displayCurrentLocation();
+}
+
+$(function() {
+    $(window).bind('hashchange', displayCurrentLocation);
+    if (!window.location.hash) {
+        window.location.hash = 'list';
+    }
+    displayCurrentLocation();
+});
+
+</script>
 </html>
