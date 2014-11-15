@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "webtest": "node node_modules/mocha/bin/mocha test/web",
+    "webtest": "node node_modules/mocha/bin/mocha --watch --growl test/web",
     "servertest": "node node_modules/mocha/bin/mocha --watch --growl test/server",
     "postinstall": "node node_modules/bower/bin/bower install"
   },
