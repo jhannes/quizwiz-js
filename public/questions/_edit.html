@@ -49,10 +49,11 @@ $(function() {
         $(".questionOption:last input:last").focus();
     });
 
+    var questionId = parseInt(window.location.hash.replace(/^.*\//, ""));
+
     $("#questionForm").submit(function(e) {
         e.preventDefault();
-        questions.save({ title: $("#questionTitle").val() }).then(function() {
-            console.log('saved');
+        questions.save(questionId, { title: $("#questionTitle").val() }).then(function() {
             if ($("#createAnotherOnSubmit").prop('checked')) {
                 window.location.hash = "edit/new";
                 $("#questionTitle").val("").focus();
@@ -62,7 +63,6 @@ $(function() {
         });
     });
 
-    var questionId = parseInt(window.location.hash.replace(/^.*\//, ""));
 
     if (questionId) {
         $('#questionDelete').click(function(e) {
@@ -83,7 +83,7 @@ $(function() {
                 if (!match[2]) {
                     $(e).val(value);
                 } else {
-                    console.log(match[2]);
+                    //console.log(match[2]);
                 }
             });
         });

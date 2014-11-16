@@ -1,47 +1,39 @@
 var questions = (function() {
-  var data = {
-    1: {
-      id:1, title: "one", text: "What do you think about one?",
-      answers: [ {'text': 'a', 'correct': true}, {'text': 'b', 'correct': false}]
-    }, 
-    2: {
-      id:2, title: "two", text: "What do you think about two?",
-      answers: [ {'text': 'a', 'correct': true}, {'text': 'b', 'correct': false}]
-    }
+  var create = function(question) {
+    return $.ajax({
+      url: '/api/questions', type: 'POST', data: JSON.stringify(question),
+      contentType: "application/json; charset=utf-8"
+    });
+  };
+
+  var update = function(questionId, question) {
+    return $.ajax({
+      url: '/api/questions/' + questionId, type: 'POST', data: JSON.stringify(question),
+      contentType: "application/json; charset=utf-8"
+    });
   };
 
 
   return {
-    save: function(question) {
-      return new Promise(function(resolve, reject) {
-        if (!question.id) {
-          question.id = data.length+1;
-        }
-        data[question.id] = question;
-        resolve();
-      });
+    save: function(questionId, question) {
+      if (questionId) {
+        return update(questionId, question);
+      } else {
+        return create(question);
+      } 
     },
 
     list: function() {
-      return new Promise(function(resolve, reject) {
-        var result = [];
-        for (var id in data) {
-          result.push(data[id]);
-        }
-        resolve(result);
-      });
+      return $.get('/api/questions');
     },
 
     get: function(questionId) {
-      return new Promise(function(resolve, reject) {
-        resolve(data[questionId]);
-      });
+      return $.get('/api/questions/' + questionId);
     },
 
     destroy: function(questionId) {
-      return new Promise(function(resolve, reject) {
-        delete data[questionId];
-        resolve();
+    return $.ajax({
+        url: '/api/questions/' + questionId, type: 'DELETE'
       });
     }
   };
