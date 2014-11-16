@@ -11,6 +11,18 @@ module.exports = function(sequelize) {
   });
 
   return {
+    list: function(filter) {
+      var where = {};
+      if (filter && filter.title) {
+        where["title"] = {ilike: '%' + filter.title + '%'};
+      }
+      return Question.all({where: where});
+    },
+
+    get: function(questionId) {
+      return Question.find({where: {id: questionId}});
+    },
+
     create: function(question) {
       return new Promise(function(resolve, reject) {
         Question.find({where: {title: question.title}}).then(function(result) {
@@ -31,18 +43,6 @@ module.exports = function(sequelize) {
           title: question.title, text: question.text
         });
       });
-    },
-
-    list: function(filter) {
-      var where = {};
-      if (filter && filter.title) {
-        where["title"] = {ilike: '%' + filter.title + '%'};
-      }
-      return Question.all({where: where});
-    },
-
-    get: function(questionId) {
-      return Question.find({where: {id: questionId}});
     },
 
     destroy: function(questionId) {

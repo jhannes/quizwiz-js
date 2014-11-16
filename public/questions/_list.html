@@ -13,18 +13,18 @@ Loading questions...
 
 <button id="addQuestion">Add new question</button>
 
-
 <script type="text/javascript">
 var questionTemplate = Handlebars.compile($("#questionTemplate").html());
 
 $(function() {
+    questions.list().then(function(data) {
+        $("#questionList").html(questionTemplate(data));
+    })
+
     $("#questionList").on("click", "a", function(e) {
         e.preventDefault();
         selectPartial('show', $(e.target).data("question"));
     });
-    questions.list().then(function(data) {
-        $("#questionList").html(questionTemplate(data));
-    })
 
     $("#addQuestion").click(function() {
         selectPartial('edit', 'new');
