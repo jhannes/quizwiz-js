@@ -1,77 +1,57 @@
+var Sequelize = require('sequelize');
+
+
 var Promise = require('bluebird/js/main/promise')();
 
-var index = 3;
-var data = {
-  1: {
-    id:1, title: "one", text: "What do you think about one?",
-    answers: [ {'text': 'a', 'correct': true}, {'text': 'b', 'correct': false}]
-  }, 
-  2: {
-    id:2, title: "two", text: "What do you think about two?",
-    answers: [ {'text': 'a', 'correct': true}, {'text': 'b', 'correct': false}]
-  }
-};
 
-module.exports = function() {
-
+module.exports = function(sequelize) {
+  var Question = sequelize.define('Question', {
+    title: Sequelize.STRING,
+    text:  Sequelize.TEXT
+  });
 
   return {
     create: function(question) {
       return new Promise(function(resolve, reject) {
-        for (var id in data) {
-          if (data[id].title === question.title) {
-            return reject("duplicate title");
-          }
-        };
+        Question.find({where: {title: question.title}}).then(function(result) {
+          if (result) return reject("duplicate title");
 
-        var questionId = index++;
-        question.id = questionId;
-        data[questionId] = question;
-        resolve(questionId);
+          Question.create({
+            title: question.title, text: question.text
+          }).then(function(value) {
+            resolve(value.id);
+          }, reject);
+        });
       });
     },
 
     update: function(questionId, question) {
-      return new Promise(function(resolve, reject) {
-        var existing = data[questionId];
-        for (var field in question) {
-          existing[field] = question[field];
-        }
-        resolve(questionId);
+      return Question.find({where: {id: questionId}}).then(function(data) {
+        return data.updateAttributes({
+          title: question.title, text: question.text
+        });
       });
     },
 
     list: function(filter) {
-      return new Promise(function(resolve, reject) {
-        var result = [];
-        for (var id in data) {
-          if (filter.title && data[id].title.toUpperCase().indexOf(filter.title.toUpperCase()) == -1) {
-            continue;
-          }
-          result.push(data[id]);
-        }
-        resolve(result);
-      });
+      var where = {};
+      if (filter && filter.title) {
+        where["title"] = {ilike: '%' + filter.title + '%'};
+      }
+      return Question.all({where: where});
     },
 
     get: function(questionId) {
-      return new Promise(function(resolve, reject) {
-        resolve(data[questionId]);
-      });
+      return Question.find({where: {id: questionId}});
     },
 
     destroy: function(questionId) {
-      return new Promise(function(resolve, reject) {
-        delete data[questionId];
-        resolve();
-      });
+      return Question.destroy({where: {id: questionId}});
     },
 
     destroyAll: function() {
-      return new Promise(function(resolve, reject) {
-        data = {};
-        resolve();
-      });
+      data = {};
+      return Question.destroy();
     }
   };
 };

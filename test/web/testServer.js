@@ -1,4 +1,9 @@
-var questions = require('../../server/questions')();
+var Sequelize = require('sequelize');
+var sequelize = new Sequelize(process.env.DATABASE_TEST_URL || 
+    "postgres://quizwiz:quizwiz@localhost:5432/quizwiz_test",
+    {logging: false});
+
+var questions = require('../../server/questions')(sequelize);
 
 var startAppServer = function(done) {
   if (process.env.URL) {

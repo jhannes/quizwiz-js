@@ -1,7 +1,17 @@
 var expect = require('chai').expect;
-var questions = require('../../server/questions')();
+
+var Sequelize = require('sequelize');
+var sequelize = new Sequelize(process.env.DATABASE_TEST_URL || 
+    "postgres://quizwiz:quizwiz@localhost:5432/quizwiz_test",
+    {logging: false});
+
+var questions = require('../../server/questions')(sequelize);
 
 describe('questions', function() {
+  before(function(done) {
+    var migrations = __dirname + "/../../migrations/";
+    sequelize.getMigrator({path: migrations}).migrate().done(done);
+  });
 
   beforeEach(function(done) {
     questions.destroyAll().done(done);
@@ -47,7 +57,7 @@ describe('questions', function() {
       questions.destroy(questionId).then(function() {
         return questions.get(questionId);
       }).then(function(q) {
-        expect(q).to.be.undefined
+        expect(q).to.be.falsy;
       }).done(done);
     });
 
@@ -60,6 +70,7 @@ describe('questions', function() {
   });
 
   it('filters questions', function(done) {
+    var equalsFilter = 'test';
     var startsWithFilter = 'Test a';
     var containsFilter = 'Another test';
     var doesNotContainFilter = 'Not included';
@@ -67,13 +78,16 @@ describe('questions', function() {
     questions
     .destroyAll()
     .then(function() {
-      return [startsWithFilter, containsFilter, doesNotContainFilter].map(function(q) {
-        return questions.create({title: q});
-      });
+      return questions.create({title: equalsFilter});
+    }).then(function() {
+      return questions.create({title: startsWithFilter});
+    }).then(function() {
+      return questions.create({title: containsFilter});
     }).then(function() {
       return questions.list({title: 'test'});
     }).then(function(result) {
       expect(result.map(function(q) { return q.title; }))
+        .to.contain(equalsFilter)
         .to.contain(startsWithFilter)
         .to.contain(containsFilter)
         .to.not.contain(doesNotContainFilter);

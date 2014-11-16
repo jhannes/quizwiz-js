@@ -31,10 +31,10 @@ describe('question web pages', function() {
   beforeEach(function(done) {
     testServer.questions.destroyAll()
     .then(function() {
-      return testServer.questions.create({title: 'one'});
+      return testServer.questions.create({title: 'the first question'});
     })
     .then(function() {
-      return testServer.questions.create({title: 'two'});
+      return testServer.questions.create({title: 'the second question'});
     })
     .then(function() {
       client
