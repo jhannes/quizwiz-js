@@ -17,7 +17,7 @@ describe('question web pages', function() {
     });
   });
 
-  beforeEach(function(done) {
+  before(function(done) {
     this.timeout(15000);
     client = webtests.startWebDriver(done);
     client.waitAndClick = function(selector) {
@@ -28,17 +28,22 @@ describe('question web pages', function() {
     }
   });
 
+  beforeEach(function(done) {
+    client
+      .url(url + "questions")
+      .waitFor('#questionList', done);
+  });
+
   afterEach(function() {
     client.saveScreenshot("TEST-" + this.currentTest.state + "-" + this.currentTest.title + ".png");
   });
 
-  afterEach(function(done) {
+  after(function(done) {
     client.end(done);
   });
 
   it('shows title in detail screen', function(done) {
     client
-      .url(url + "questions")
       .waitAndGetText('#questionList a', function(err, summaryText) {
         client
           .click('#questionList a')
@@ -52,7 +57,6 @@ describe('question web pages', function() {
 
   it('shows title in edit screen', function(done) {
     client
-      .url(url + "questions")
       .waitAndClick('#questionList a')
       .waitAndGetText('#questionTitle', function(err, editTitle) {
         client
@@ -67,7 +71,6 @@ describe('question web pages', function() {
 
   it('updates title after edit', function(done) {
     client
-      .url(url + 'questions')
       .waitAndClick('#questionList a')
       .waitAndClick('#questionEdit')
       .waitFor('#questionForm')
@@ -81,7 +84,6 @@ describe('question web pages', function() {
 
   it('removes deleted questions', function(done) {
     client
-      .url(url + 'questions')
       .waitAndClick('#questionList a')
       .waitAndGetText('#questionTitle', function(err, editTitle) {
         client
@@ -96,7 +98,6 @@ describe('question web pages', function() {
 
   it('shows save screen', function(done) {
     client
-      .url(url + 'questions')
       .waitAndClick('#addQuestion')
       .waitFor('#questionForm')
       .getAttribute('#questionTitle', 'value', function(err, value) {
@@ -107,7 +108,6 @@ describe('question web pages', function() {
 
   it('removes title but keeps screen on create new during save', function(done) {
     client
-      .url(url + 'questions')
       .waitAndClick('#addQuestion')
       .waitFor('#questionForm')
       .setValue('#questionTitle', 'new  question')
@@ -118,10 +118,5 @@ describe('question web pages', function() {
         done();
       });
   });
-
-
-
-
-
 });
 
