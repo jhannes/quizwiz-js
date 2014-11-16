@@ -18,13 +18,14 @@ describe('questions', function() {
   });
 
   it('includes saved questions in list', function(done) {
-    var question = { title: 'New question' };
+    var question = { title: 'New question', text: 'question text' };
     questions
       .create(question).then(function(id) {
         return questions.get(id);
       })
       .then(function(q) {
         expect(q.title).to.eql(question.title);
+        expect(q.text).to.eql(question.text);
       })
       .done(done);
   });

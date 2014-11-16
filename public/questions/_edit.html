@@ -5,7 +5,7 @@
     <input type="text" name="question[title]" id="questionTitle" placeholder="Title" size="80" />
     </div>
     <div>
-    <textarea name="question[text]" rows="10" cols="80"
+    <textarea name="question[text]" id="questionText" rows="10" cols="80"
     placeholder="Question text (markdown accepted)"></textarea>
     </div>
 
@@ -38,6 +38,7 @@
 </script>
 
 
+<script src="/vendor/jquery-serialize-object/dist/jquery.serialize-object.min.js"></script>
 <script type="text/javascript">
 $(function() {
     var answerTemplate = Handlebars.compile($("#questionAnswerTemplate").html());
@@ -56,7 +57,8 @@ $(function() {
 
     $("#questionForm").submit(function(e) {
         e.preventDefault();
-        questions.save(questionId, { title: $("#questionTitle").val() }).then(function() {
+        var form = $("form#questionForm").serializeObject();
+        questions.save(questionId, form.question).then(function() {
             if ($("#createAnotherOnSubmit").prop('checked')) {
                 window.location.hash = "edit/new";
                 $("#questionTitle").val("").focus();

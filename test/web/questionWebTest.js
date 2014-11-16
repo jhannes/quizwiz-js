@@ -6,26 +6,39 @@ var testServer = require('./testserver');
 describe('question web pages', function() {
   this.timeout(5000);
 
-  var client;
-  var url;
-
-  before(webtests.startSeleniumServer);
+  var selenium, client, url;
 
   before(function(done) {
-    testServer.startServer(function(_url) {
-      url = _url; done();
-    });
+    selenium = require('selenium-standalone')();
+    setTimeout(done, 2000);
   });
 
   before(function(done) {
-    this.timeout(15000);
-    client = webtests.startWebDriver(done);
+    client = require('webdriverio').remote({
+      desiredCapabilities: { browserName: 'chrome' }
+    });
     client.waitAndClick = function(selector) {
       return client.waitFor(selector).click(selector);
     };
     client.waitAndGetText = function(selector, callback) {
       return client.waitFor(selector).getText(selector, callback);
     }
+    client.init(done);
+  });
+
+  before(function(done) {
+    testServer.startServer(function(_url) {
+      url = _url;
+      done();
+    });
+  });
+
+  after(function(done) {
+    client.end(done);
+  });
+
+  after(function() {
+    selenium.kill();
   });
 
   beforeEach(function(done) {
@@ -45,10 +58,6 @@ describe('question web pages', function() {
 
   afterEach(function() {
     client.saveScreenshot("TEST-" + this.currentTest.state + "-" + this.currentTest.title + ".png");
-  });
-
-  after(function(done) {
-    client.end(done);
   });
 
   it('shows title in detail screen', function(done) {
@@ -85,8 +94,23 @@ describe('question web pages', function() {
       .waitFor('#questionForm')
       .setValue('#questionTitle', 'new title')
       .submitForm('#questionTitle')
-      .waitAndGetText('#questionList a', function(err, texts) {
+      .waitAndGetText('=new title', function(err, texts) {
         expect(texts).to.contain('new title');
+        done();
+      });
+  });
+
+  it('updates text on edit', function(done) {
+    var newText = 'some text for the question text field';
+    client
+      .waitAndClick('=the first question')
+      .waitAndClick('#questionEdit')
+      .waitFor('#questionForm')
+      .setValue('#questionText', newText)
+      .submitForm('#questionTitle')
+      .waitAndClick('=the first question')
+      .waitAndGetText('#questionText', function(err, value) {
+        expect(value).to.eql(newText);
         done();
       });
   });
