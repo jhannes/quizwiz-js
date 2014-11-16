@@ -24,6 +24,9 @@
     <p>
       <button id='questionDelete' type='button'>Delete question</button>
     </p>
+    <p>
+      <button id='questionCancel' type='button'>Cancel</button>
+    </p>
 </form>
 
 <script id="questionAnswerTemplate" type="text/x-handlebar-template">
@@ -63,12 +66,14 @@ $(function() {
         });
     });
 
+    $("#questionCancel").click(function() {
+        selectPartial("list");
+    });
+
 
     if (questionId) {
         $('#questionDelete').click(function(e) {
-            e.preventDefault();
             questions.destroy(questionId).then(function() {
-                console.log('destroyed');
                 selectPartial("list");
             });
         });
