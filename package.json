@@ -5,7 +5,7 @@
   "scripts": {
     "webtest": "node node_modules/mocha/bin/mocha --watch --growl test/web",
     "servertest": "node node_modules/mocha/bin/mocha --watch --growl test/server",
-    "postinstall": "./node_modules/bower/bin/bower install"
+    "postinstall": "node node_modules/bower/bin/bower install"
   },
   "dependencies": {
     "body-parser": "^1.9.2",
