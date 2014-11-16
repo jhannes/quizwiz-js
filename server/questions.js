@@ -25,6 +25,7 @@ module.exports = function() {
         };
 
         var questionId = index++;
+        question.id = questionId;
         data[questionId] = question;
         resolve(questionId);
       });

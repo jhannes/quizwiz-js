@@ -29,9 +29,18 @@ describe('question web pages', function() {
   });
 
   beforeEach(function(done) {
-    client
-      .url(url + "questions")
-      .waitFor('#questionList', done);
+    testServer.questions.destroyAll()
+    .then(function() {
+      return testServer.questions.create({title: 'one'});
+    })
+    .then(function() {
+      return testServer.questions.create({title: 'two'});
+    })
+    .then(function() {
+      client
+        .url(url + "questions")
+        .waitFor('#questionList', done);      
+    });
   });
 
   afterEach(function() {
