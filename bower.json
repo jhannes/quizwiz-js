@@ -15,6 +15,8 @@
   ],
   "dependencies": {
     "jquery": "~2.1.1",
+    "jquery-serialize-object": "~2.4.3",
+    "promise-js": "~0.0.5",
     "handlebars": "~2.0.0"
   }
 }
